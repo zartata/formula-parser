@@ -5,8 +5,8 @@
  *
  * @author Denis Simon <hellodenissimon@gmail.com>
  *
- * @license   The program is a free software and distributed without any warranty under dual MIT & BSD New
- * http://www.opensource.org/licenses/mit-license.php, http://www.opensource.org/licenses/BSD-3-Clause
+ * @license   This program is a free software and distributed without any warranty under dual MIT & BSD New
+ * http://www.opensource.org/licenses/MIT, http://www.opensource.org/licenses/BSD-3-Clause
  *
  * Version: 1.0
  *
@@ -20,8 +20,8 @@
 */
 interface IFormulaParser {	
 	
-	//getResult method returns a result array(0=>'string1',1=>'string2'), where string1 is the operating status, 
-	//which can be 'done' or 'error', and string2 is a calculated answer or error message to the preset language
+	//getResult method returns a result array(0=>value1, 1=>value2), where value1 is the operating status, 
+	//which can be 'done' or 'error', and value2 is a calculated answer or error message to the preset language
 	//in constructor.
 	//The successful calculated answer is a float number with several characters after the decimal point.
 	public function getResult();
@@ -51,11 +51,11 @@ class FormulaParser implements IFormulaParser {
 	*
 	* Constructor
 	*
-	* @param string $user_formula		The formula given to class
-	* @param string $lang			Set language ('en', 'ru' or 'es')
-	* @param integer $max_length	        Max length of the user's formula
-	* @param integer $characters_number	The number of characters after the decimal point 
-	* 					in calculated answer
+	* @param string $user_formula		  The user's formula given to class
+	* @param string $lang				  Set language ('en', 'ru' or 'es')
+	* @param integer $max_length	      Max length of the formula
+	* @param integer $characters_number	  The number of characters after the decimal point 
+	* 									  in calculated answer
 	*/
 	public function __construct($user_formula, $lang, $max_length, $characters_number)
 	{
@@ -317,8 +317,8 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	*
-	* A main method to calculate the user's formula. Returns a result array(0=>'string1',1=>'string2'), 
-	* where string1 is the operating status, which can be 'done' or 'error', and string2 is a calculated answer 
+	* A main method to calculate the user's formula. Returns a result array(0=>value1, 1=>value2), 
+	* where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer 
 	* or error message to the preset language in constructor.
 	*
 	* @name getResult
@@ -458,8 +458,8 @@ class FormulaParser implements IFormulaParser {
 				}
 				
 				if ($temp) {
-					if (((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))
-					||(strstr($temp,'/'))||(strstr($temp,'^')))&&((strlen($temp))>=2)) {
+					if (((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))||(strstr($temp,'/'))
+					||(strstr($temp,'^')))&&((strlen($temp))>=2)) {
 						$temp = $this->getPreResult($temp);
 			
 					} else {
