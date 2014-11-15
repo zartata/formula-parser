@@ -51,11 +51,11 @@ class FormulaParser implements IFormulaParser {
 	*
 	* Constructor
 	*
-	* @param string $user_formula		  The user's formula given to class
-	* @param string $lang				  Set language ('en', 'ru' or 'es')
+	* @param string $user_formula	      The user's formula given to class
+	* @param string $lang		      Set language ('en', 'ru' or 'es')
 	* @param integer $max_length	      Max length of the formula
-	* @param integer $characters_number	  The number of characters after the decimal point 
-	* 									  in calculated answer
+	* @param integer $characters_number   The number of characters after the decimal point 
+	* 				      in calculated answer
 	*/
 	public function __construct($user_formula, $lang, $max_length, $characters_number)
 	{
@@ -458,8 +458,8 @@ class FormulaParser implements IFormulaParser {
 				}
 				
 				if ($temp) {
-					if (((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))||(strstr($temp,'/'))
-					||(strstr($temp,'^')))&&((strlen($temp))>=2)) {
+					if (((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))
+					||(strstr($temp,'/'))||(strstr($temp,'^')))&&((strlen($temp))>=2)) {
 						$temp = $this->getPreResult($temp);
 			
 					} else {
