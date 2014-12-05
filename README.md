@@ -1,7 +1,7 @@
 Formula Parser
 ==============
 
-Formula Parser is a class to parse mathematical formulas from a string. It's like what you can do in R, but right on a website. This class can give to users of your site or application functionality to calculate a big formula (10000 characters max by default) and get the answer online. The class written in PHP.
+Formula Parser is a class for parsing mathematical formulas from a string. It's like what you can do in R, but right on a website. This class can give to users of your site or application functionality to calculate a big formula (10000 characters max by default) and get the answer online. The class written in PHP.
 
 Setup and Usage
 ---------------
