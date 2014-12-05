@@ -1,11 +1,11 @@
 <?php
 /**
- * Formula Parser - The PHP class for parsing big mathematical formulas from a string and get results online.
+ * Formula Parser - The PHP class for parsing mathematical formulas from a string and getting results online.
  * It's like what you can do in R, but right on a website.
  *
- * @author Denis Simon <hellodenissimon@gmail.com>
+ * @author  Denis Simon <hellodenissimon@gmail.com>
  *
- * @license   This program is a free software and distributed without any warranty under dual MIT & BSD New
+ * @license This program is a free software and distributed without any warranty under dual MIT & BSD New
  * http://www.opensource.org/licenses/MIT, http://www.opensource.org/licenses/BSD-3-Clause
  *
  * Version: 1.0
@@ -51,15 +51,15 @@ class FormulaParser implements IFormulaParser {
 	*
 	* Constructor
 	*
-	* @param string $user_formula	      The user's formula given to class
-	* @param string $lang		      Set language ('en', 'ru' or 'es')
-	* @param integer $max_length	      Max length of the formula
-	* @param integer $characters_number   The number of characters after the decimal point 
-	* 				      in calculated answer
+	* @param string $user_formula	       The user's formula given to class
+	* @param string $lang		       Setting the language ('en', 'ru' or 'es')
+	* @param integer $max_length	       Max length of the formula
+	* @param integer $characters_number    The number of characters after the decimal point 
+	* 				       in calculated answer
 	*/
 	public function __construct($user_formula, $lang, $max_length, $characters_number)
 	{
-	    $this->_formula = $this->_original_formula = $user_formula;
+		$this->_formula = $this->_original_formula = $user_formula;
 		
 		$lang_array = array('en','ru','es');
 		if (in_array($lang,$lang_array)) {
@@ -67,7 +67,7 @@ class FormulaParser implements IFormulaParser {
 		}
 		
 		$max_length = (int)$max_length;
-		if (($max_length<=0)||($max_length>10000)) $max_length = 10000;
+		if ($max_length<=0) $max_length = 10000;
 		$this->_max_length = $max_length;
 		
 		$characters_number = (int)$characters_number;
@@ -83,7 +83,7 @@ class FormulaParser implements IFormulaParser {
 	*/
 	private function cutSymbol($str, $symbol)
 	{
-	    return str_replace($symbol, '', $str);	
+		return str_replace($symbol, '', $str);	
 	}
 	
 	/**
@@ -95,7 +95,7 @@ class FormulaParser implements IFormulaParser {
 	*/
 	public function getFormula()
 	{
-	    return $this->_original_formula;	
+		return $this->_original_formula;	
 	}
 	
 	/**
@@ -115,7 +115,7 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	*
-	* First parse (calculate first-order operations ^, * and /)
+	* First parsing (calculate first-order operations ^, * and /)
 	*
 	* @name calculate1
 	* @return array
@@ -164,7 +164,7 @@ class FormulaParser implements IFormulaParser {
 							if ($array[$i+1]!=0) {
 								$a = round($array[$i-1]/$array[$i+1],10);
 							} else {
-								//@rule one can not divide by 0
+								//@rule  one can not divide by 0
 								$this->_correct=0;
 								break;
 								return;
@@ -182,7 +182,7 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	*
-	* Second parse (calculate second-order operations + and -)
+	* Second parsing (calculate second-order operations + and -)
 	*
 	* @name calculate2
 	* @return array
@@ -224,7 +224,7 @@ class FormulaParser implements IFormulaParser {
 	*/
 	private function getPreResult($str)
 	{
-	    //some syntax check		
+		//some syntax check		
 		if (($str[0]=='+')||($str[0]=='*')||($str[0]=='/')||($str[0]=='^')) {
 			$this->_correct = 0;
 			return; 
@@ -306,12 +306,12 @@ class FormulaParser implements IFormulaParser {
 	*/
 	private function errorMsg()
 	{
-	    if ($this->_lang=='en') {
-		    return 'Please check the specified formula for syntactic correctness.';
+		if ($this->_lang=='en') {
+			return 'Please check the specified formula for syntactic correctness.';
 		} elseif ($this->_lang=='ru') {
-		    return 'Пожалуйста, проверьте указанную формулу на корректность синтаксиса.';
+			return 'Пожалуйста, проверьте указанную формулу на корректность синтаксиса.';
 		} elseif ($this->_lang=='es') {
-		    return 'Por favor, compruebe la fórmula especificada por la corrección sintáctica.';
+			return 'Por favor, compruebe la fórmula especificada por la corrección sintáctica.';
 		}
 	}
 	
@@ -412,11 +412,11 @@ class FormulaParser implements IFormulaParser {
 		
 		if ((preg_match('/[^0-9*+-^.]/',$test))||(strstr($test,' '))){
 			if ($this->_lang=='en') {
-		    	$msg = 'The formula can contain only numbers, operators +-*/^ and parentheses, no spaces.';
+				$msg = 'The formula can contain only numbers, operators +-*/^ and parentheses, no spaces.';
 			} elseif ($this->_lang=='ru') {
-		    	$msg = 'Формула может содержать только цифры, операторы +-*/^ и скобки, без пробелов.';
+				$msg = 'Формула может содержать только цифры, операторы +-*/^ и скобки, без пробелов.';
 			} elseif ($this->_lang=='es') {
-		    	$msg = 'La fórmula puede contener cifras, los operadores +-*/^ y paréntesis, sin espacios.';
+				$msg = 'La fórmula puede contener cifras, los operadores +-*/^ y paréntesis, sin espacios.';
 			}
 			return (array('error',$msg));
 		////
