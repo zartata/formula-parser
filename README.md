@@ -16,7 +16,7 @@ Then invoke the class in your project using the class constructor:
 
 `$user_formula` The user's formula given to class
 
-`$lang` Set language ('en', 'ru' or 'es')
+`$lang` Setting the language ('en', 'ru' or 'es')
 
 `$max_length` Max length of the formula
 
