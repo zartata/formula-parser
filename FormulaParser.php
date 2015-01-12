@@ -1,32 +1,29 @@
 <?php
 /**
- * Formula Parser - The PHP class for parsing mathematical formulas from a string and getting results online.
- * It's like what you can do in R, but right on a website.
- *
+ * Formula Parser - A PHP class for parsing mathematical formulas from a string
+ * 
  * @author  Denis Simon <hellodenissimon@gmail.com>
  *
- * @license This program is a free software and distributed without any warranty under dual MIT & BSD New
- * http://www.opensource.org/licenses/MIT, http://www.opensource.org/licenses/BSD-3-Clause
+ * Project repository: https://github.com/denissimon/formula-parser
+ * 
+ * Licensed under the MIT license
+ * http://opensource.org/licenses/MIT
  *
- * Version: 1.0
- *
- * Date: 2014-09-10
+ * version: 1.1-2014.12.05
  */
  
 /**
 * @interface IFormulaParser
-*
-* Interface includes two public methods to work with the class.
 */
 interface IFormulaParser {	
 	
-	//getResult method returns a result array(0=>value1, 1=>value2), where value1 is the operating status, 
-	//which can be 'done' or 'error', and value2 is a calculated answer or error message to the preset language
-	//in constructor.
-	//The successful calculated answer is a float number with several characters after the decimal point.
+	// getResult method returns an result array(0=>value1, 1=>value2), where value1 is the operating status, 
+	// which can be 'done' or 'error', and value2 is a calculated answer or error message to the preset language
+	// in constructor.
+	// The successful calculated answer is a float number with several characters after the decimal point.
 	public function getResult();
 	
-	//getFormula method returns the initially introduced formula.
+	// getFormula method returns the initially introduced formula.
 	public function getFormula();
 }
 
@@ -87,9 +84,6 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	*
-	* Returns the initially introduced formula
-	*
 	* @name getFormula
 	* @return string
 	*/
@@ -100,7 +94,7 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	* 
-	* Sort array by key
+	* Sort an array by key
 	*
 	* @name reKeyArray
 	* @return array
@@ -115,7 +109,7 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	*
-	* First parsing (calculate first-order operations ^, * and /)
+	* Calculate first-order operations ^, * and /
 	*
 	* @name calculate1
 	* @return array
@@ -182,7 +176,7 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	*
-	* Second parsing (calculate second-order operations + and -)
+	* Calculate second-order operations + and -
 	*
 	* @name calculate2
 	* @return array
@@ -224,7 +218,7 @@ class FormulaParser implements IFormulaParser {
 	*/
 	private function getPreResult($str)
 	{
-		//some syntax check		
+		// syntax checks
 		if (($str[0]=='+')||($str[0]=='*')||($str[0]=='/')||($str[0]=='^')) {
 			$this->_correct = 0;
 			return; 
@@ -264,7 +258,7 @@ class FormulaParser implements IFormulaParser {
 		
 		if ($this->_correct==0) {return;}
 		
-		//if all is correct now, create and fill $main_array
+		// if all is correct now, create and fill $main_array
 		$main_array = array();
 		$count = 0;
 		
@@ -316,11 +310,6 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	*
-	* A main method to calculate the user's formula. Returns a result array(0=>value1, 1=>value2), 
-	* where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer 
-	* or error message to the preset language in constructor.
-	*
 	* @name getResult
 	* @return array
 	*/
@@ -330,8 +319,7 @@ class FormulaParser implements IFormulaParser {
 		
 		$test = ''; $test = $this->_formula;		
 		
-		////check that the user's formula is correct
-		//a couple of first checks
+		//// check that the user's formula is correct
 		if ((empty($test))||(!strpbrk($test,'0123456789'))||(!strpbrk($test,'+-*/^'))) {
 			if ($this->_lang=='en') {
 				$msg = 'You have not entered the formula.';
@@ -354,7 +342,7 @@ class FormulaParser implements IFormulaParser {
 		return (array('error',$msg));
 		}
 		
-		//check for an equality of opening and closing parentheses
+		// check for an equality of opening and closing parentheses
 		$open_count = 0; $close_count = 0;
 		for ($i=0; $i<=strlen($test)-1; $i++) {
 			if ($test[$i]=='(') {
@@ -373,9 +361,8 @@ class FormulaParser implements IFormulaParser {
 			}   
 		return (array('error',$msg));
 		}
-		//
 		
-		//check for an absence of extra parentheses as the first and last symbol
+		// check for an absence of extra parentheses as the first and last symbol
 		$ok1 = NULL; $ok2 = NULL;
 		while ((($test[0]=='(')&&(substr($test, -1)==')'))&&(($ok1!==0)||($ok2!==0))) {
 			
@@ -404,7 +391,6 @@ class FormulaParser implements IFormulaParser {
 				$this->_formula = $test;
 			}
 		}
-		//
 		
 		if (strstr($test, '/')) {$test = $this->cutSymbol($test, '/');}
 		if (strstr($test, '(')) {$test = $this->cutSymbol($test, '(');}
@@ -422,8 +408,8 @@ class FormulaParser implements IFormulaParser {
 		////
 		} else {
 				
-			/////////////////////////////////////////////////////////////////////////
-			//start iteration algorithm
+			////////////////////////////////////////////////////////
+			// start iteration algorithm
 			$work_formula =''; $processing_formula = ''; $temp = ''; 
 			$work_formula = $processing_formula = $this->_formula;
 						
@@ -483,7 +469,8 @@ class FormulaParser implements IFormulaParser {
 					break;
 				}	
 			
-			} //// end big for
+			}
+			//// end big for
 			
 			if ($processing_formula) {
 				if (((strstr($processing_formula,'+'))||(strstr($processing_formula,'-'))
@@ -494,8 +481,8 @@ class FormulaParser implements IFormulaParser {
 					$result = $processing_formula;
 				}
 			}			
-			//end iteration algorithm
-			/////////////////////////////////////////////////////////////////////////
+			// end iteration algorithm
+			////////////////////////////////////////////////////////
 		
 			if ($this->_correct==1) {	
 				return (array('done',$result));
