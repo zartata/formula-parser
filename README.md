@@ -1,7 +1,7 @@
 Formula Parser
 ==============
 
-Formula Parser is a class for parsing mathematical formulas from a string. It's like what you can do in R, but right on a website. This class can give to users of your site or application functionality to calculate a big formula (10000 characters max by default) and get the answer online. The class written in PHP.
+Formula Parser is a PHP class for parsing mathematical formulas from a string. It's like what you can do in R, but right on a website. This class can give to users of your site or application functionality to calculate a big formula (10000 characters max by default) and get the answer online.
 
 Setup and Usage
 ---------------
@@ -25,7 +25,7 @@ Then invoke the class in your project using the class constructor:
 
 The initialized object `$formula` has two public methods to work with the class:
 
-`getResult()` Returns a result array(0=>value1, 1=>value2), where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer or some error message to the preset language in constructor. The successful calculated answer is a float number with several characters after the decimal point.
+`getResult()` Returns an result array(0=>value1, 1=>value2), where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer or some error message to the preset language in constructor. The successful calculated answer is a float number with several characters after the decimal point.
 
 `getFormula()`  Returns the initially introduced formula
 
@@ -49,4 +49,4 @@ An example of a site made in pure PHP using Formula Parser class: [www.yoursimpl
 
 ###License
 
-This program is open-sourced software licensed under the dual [MIT license](http://opensource.org/licenses/MIT) & [BSD New](http://www.opensource.org/licenses/BSD-3-Clause).
+This program is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
