@@ -1,6 +1,6 @@
 <?php
 /**
- * Formula Parser - A PHP class for parsing and derivation of mathematical formula entered as a string
+ * Formula Parser - A PHP class for parsing of mathematical formula entered as a string
  *
  * @author   Denis Simon <hellodenissimon@gmail.com>
  *
@@ -34,15 +34,15 @@ class FormulaParser implements IFormulaParser {
 	 *
 	 * Constructor
 	 *
-	 * @param string  $my_formula	        The formula entered as a string
+	 * @param string  $input_string	        The formula entered as a string
 	 * @param string  $lang		        Setting the language ('en', 'ru' or 'es')
 	 * @param integer $max_length	        Setting the maximum possible length of the formula
-	 * @param integer $characters_number    Setting the number of characters after the decimal point 
+	 * @param integer $characters_number    Setting the maximum number of characters after the decimal point 
 	 * 				        in a calculated answer
 	 */
-	public function __construct($my_formula, $lang, $max_length, $characters_number)
+	public function __construct($input_string, $lang, $max_length, $characters_number)
 	{
-		$this->_formula = $this->_original_formula = $my_formula;
+		$this->_formula = $this->_original_formula = $input_string;
 		
 		$lang_array = array('en','ru','es');
 		if (in_array($lang, $lang_array)) {
@@ -55,7 +55,7 @@ class FormulaParser implements IFormulaParser {
 		if ($characters_number<0) $characters_number = 4;
 		$this->_characters_number = (int)$characters_number;
 		
-		unset($my_formula, $lang, $max_length, $characters_number);
+		unset($input_string, $lang, $max_length, $characters_number);
 	}
 	
 	/**
@@ -152,7 +152,6 @@ class FormulaParser implements IFormulaParser {
 				}
 			}
 		}
-		
 		return $array;
 	}
 	
@@ -243,6 +242,7 @@ class FormulaParser implements IFormulaParser {
 		
 		// If everything is correct now, create and fill $main_array
 		$main_array = array();
+		
 		$count = 0;
 		
 		for ($i=0; $i<=strlen($str)-1; $i++) {
@@ -299,8 +299,8 @@ class FormulaParser implements IFormulaParser {
 	 * @name getResult
 	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, 
 	 *			which can be 'done' or 'error', and value2 is a calculated answer 
-	 *			or error message in the language set in constructor.
-	 * 			The successful calculated answer is a float with set number 
+	 *			or error message in the set language.
+	 * 			The successful calculated answer is a float with set maximum number 
 	 * 			of characters after the decimal point.
 	 */
 	public function getResult()
@@ -309,7 +309,7 @@ class FormulaParser implements IFormulaParser {
 		
 		$test = $this->_formula;		
 		
-		//// check the correctness of the entered formula
+		//// begin the validation of the formula
 		if ((empty($test))||(!strpbrk($test,'0123456789'))||(!strpbrk($test,'+-*/^'))) {
 			if ($this->_lang=='en') {
 				$msg = 'You have not entered the formula.';
@@ -395,7 +395,6 @@ class FormulaParser implements IFormulaParser {
 		////
 		} else {
 			
-			// begin an iteration algorithm
 			$work_formula = ''; $processing_formula = ''; $temp = ''; 
 			$work_formula = $processing_formula = $this->_formula;
 			
@@ -406,6 +405,7 @@ class FormulaParser implements IFormulaParser {
 				}
 			}
 			
+			// run an iterative algorithm
 			for ($yy=1; $yy<=$brackets_count; $yy++) {
 				
 				$start_cursor_pos = 0; $end_cursor_pos = 0;
