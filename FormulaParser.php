@@ -1,35 +1,21 @@
 <?php
 /**
- * Formula Parser - A PHP class for parsing mathematical formulas from a string
- * 
- * @author  Denis Simon <hellodenissimon@gmail.com>
+ * Formula Parser - A PHP class for parsing and derivation of mathematical formula entered as a string
  *
- * Project repository: https://github.com/denissimon/formula-parser
- * 
- * Licensed under the MIT license
- * http://opensource.org/licenses/MIT
+ * @author   Denis Simon <hellodenissimon@gmail.com>
  *
- * version: 1.1-2014.12.05
+ * @license  Licensed under MIT (https://github.com/denissimon/formula-parser/blob/master/LICENSE)
+ *
+ * @version  1.1-2014.12.05
  */
  
-/**
-* @interface IFormulaParser
-*/
-interface IFormulaParser {	
+interface IFormulaParser {
 	
-	// getResult method returns an result array(0=>value1, 1=>value2), where value1 is the operating status, 
-	// which can be 'done' or 'error', and value2 is a calculated answer or error message to the preset language
-	// in constructor.
-	// The successful calculated answer is a float number with several characters after the decimal point.
 	public function getResult();
 	
-	// getFormula method returns the initially introduced formula.
 	public function getFormula();
 }
 
-/**
-* @class FormulaParser
-*/
 class FormulaParser implements IFormulaParser {
 	
 	private $_formula = NULL;
@@ -45,60 +31,58 @@ class FormulaParser implements IFormulaParser {
 	private $_characters_number = 4;
 	
 	/**
-	*
-	* Constructor
-	*
-	* @param string $user_formula	       The user's formula given to class
-	* @param string $lang		       Setting the language ('en', 'ru' or 'es')
-	* @param integer $max_length	       Max length of the formula
-	* @param integer $characters_number    The number of characters after the decimal point 
-	* 				       in calculated answer
-	*/
-	public function __construct($user_formula, $lang, $max_length, $characters_number)
+	 *
+	 * Constructor
+	 *
+	 * @param string  $my_formula	        The formula entered as a string
+	 * @param string  $lang		        Setting the language ('en', 'ru' or 'es')
+	 * @param integer $max_length	        Setting the maximum possible length of the formula
+	 * @param integer $characters_number    Setting the number of characters after the decimal point 
+	 * 				        in a calculated answer
+	 */
+	public function __construct($my_formula, $lang, $max_length, $characters_number)
 	{
-		$this->_formula = $this->_original_formula = $user_formula;
+		$this->_formula = $this->_original_formula = $my_formula;
 		
 		$lang_array = array('en','ru','es');
-		if (in_array($lang,$lang_array)) {
+		if (in_array($lang, $lang_array)) {
 			$this->_lang = $lang;
 		}
 		
-		$max_length = (int)$max_length;
 		if ($max_length<=0) $max_length = 10000;
-		$this->_max_length = $max_length;
+		$this->_max_length = (int)$max_length;
 		
-		$characters_number = (int)$characters_number;
-		if (($characters_number<0)||($characters_number>10)) $characters_number = 4;
-		$this->_characters_number = $characters_number;
+		if ($characters_number<0) $characters_number = 4;
+		$this->_characters_number = (int)$characters_number;
 		
-		unset($user_formula, $lang, $max_length, $characters_number);
+		unset($my_formula, $lang, $max_length, $characters_number);
 	}
 	
 	/**
-	* @name cutSymbol
-	* @return string
-	*/
+	 * @name cutSymbol
+	 * @return string
+	 */
 	private function cutSymbol($str, $symbol)
 	{
 		return str_replace($symbol, '', $str);	
 	}
 	
 	/**
-	* @name getFormula
-	* @return string
-	*/
+	 * @name getFormula
+	 * @return string	The initially entered formula
+	 */
 	public function getFormula()
 	{
 		return $this->_original_formula;	
 	}
 	
 	/**
-	* 
-	* Sort an array by key
-	*
-	* @name reKeyArray
-	* @return array
-	*/
+	 * 
+	 * Sort an array by key
+	 *
+	 * @name reKeyArray
+	 * @return array
+	 */
 	private function reKeyArray(array $array)
 	{
 		$new_array = array();
@@ -108,16 +92,15 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	*
-	* Calculate first-order operations ^, * and /
-	*
-	* @name calculate1
-	* @return array
-	*/
+	 *
+	 * Calculate first-order operations ^, * and /
+	 *
+	 * @name calculate1
+	 * @return array
+	 */
 	private function calculate1(array $array)
 	{
 		$a = 0;
-
 		if (in_array('^',$array)) {
 			for ($i=0; $i<=count($array)-1;$i++) {
 				$otp = 1;
@@ -146,9 +129,8 @@ class FormulaParser implements IFormulaParser {
 				}
 			}	
 		}
-
-		$a = 0;
 		
+		$a = 0;
 		if ((in_array('*',$array))||(in_array('/',$array))) {
 				for ($i=0; $i<=count($array)-1;$i++) {
 					if (($array[$i]==='*')||($array[$i]==='/')) {
@@ -158,7 +140,7 @@ class FormulaParser implements IFormulaParser {
 							if ($array[$i+1]!=0) {
 								$a = round($array[$i-1]/$array[$i+1],10);
 							} else {
-								//@rule  one can not divide by 0
+								// @rule  one can not divide by 0
 								$this->_correct=0;
 								break;
 								return;
@@ -175,12 +157,12 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	*
-	* Calculate second-order operations + and -
-	*
-	* @name calculate2
-	* @return array
-	*/
+	 *
+	 * Calculate second-order operations + and -
+	 *
+	 * @name calculate2
+	 * @return array
+	 */
 	private function calculate2(array $array)
 	{
 		$a = 0;
@@ -209,13 +191,13 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	*
-	* Calculate pre result
-	*
-	* @name getPreResult
-	* @param string $str	Part of the formula
-	* @return float
-	*/
+	 *
+	 * Calculate pre result
+	 *
+	 * @name getPreResult
+	 * @param string $str	Part of the formula
+	 * @return float
+	 */
 	private function getPreResult($str)
 	{
 		// syntax checks
@@ -258,7 +240,7 @@ class FormulaParser implements IFormulaParser {
 		
 		if ($this->_correct==0) {return;}
 		
-		// if all is correct now, create and fill $main_array
+		// If everything is correct now, create and fill $main_array
 		$main_array = array();
 		$count = 0;
 		
@@ -287,7 +269,7 @@ class FormulaParser implements IFormulaParser {
 		//
 		
 		$main_array = $this->reKeyArray($main_array);
-	
+		
 		$main_array = $this->calculate1($main_array);
 		$main_array = $this->calculate2($main_array);
 		
@@ -295,9 +277,9 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	* @name errorMsg
-	* @return string
-	*/
+	 * @name errorMsg
+	 * @return string
+	 */
 	private function errorMsg()
 	{
 		if ($this->_lang=='en') {
@@ -310,16 +292,23 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	* @name getResult
-	* @return array
-	*/
+	 * 
+	 * A main method of the class
+	 *
+	 * @name getResult
+	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, 
+	 *			which can be 'done' or 'error', and value2 is a calculated answer 
+	 *			or error message in the language set in constructor.
+	 * 			The successful calculated answer is a float with set number 
+	 * 			of characters after the decimal point.
+	 */
 	public function getResult()
 	{
 		$result = 0;
 		
 		$test = ''; $test = $this->_formula;		
 		
-		//// check that the user's formula is correct
+		//// check the correctness of the entered formula
 		if ((empty($test))||(!strpbrk($test,'0123456789'))||(!strpbrk($test,'+-*/^'))) {
 			if ($this->_lang=='en') {
 				$msg = 'You have not entered the formula.';
@@ -362,8 +351,8 @@ class FormulaParser implements IFormulaParser {
 		return (array('error',$msg));
 		}
 		
-		// check for an absence of extra parentheses as the first and last symbol
-		$ok1 = NULL; $ok2 = NULL;
+		// check for an absence of excess parentheses
+		$ok1 = $ok2 = NULL;
 		while ((($test[0]=='(')&&(substr($test, -1)==')'))&&(($ok1!==0)||($ok2!==0))) {
 			
 			$ok1 = NULL; $ok2 = NULL;
@@ -407,9 +396,8 @@ class FormulaParser implements IFormulaParser {
 			return (array('error',$msg));
 		////
 		} else {
-				
-			////////////////////////////////////////////////////////
-			// start iteration algorithm
+			
+			// begin an iteration algorithm
 			$work_formula =''; $processing_formula = ''; $temp = ''; 
 			$work_formula = $processing_formula = $this->_formula;
 						
@@ -420,7 +408,6 @@ class FormulaParser implements IFormulaParser {
 				}
 			}
 			
-			//// start big for
 			for ($yy=1; $yy<=$brackets_count; $yy++) {
 				
 				$start_cursor_pos = 0; $end_cursor_pos = 0;
@@ -470,7 +457,6 @@ class FormulaParser implements IFormulaParser {
 				}	
 			
 			}
-			//// end big for
 			
 			if ($processing_formula) {
 				if (((strstr($processing_formula,'+'))||(strstr($processing_formula,'-'))
@@ -480,9 +466,8 @@ class FormulaParser implements IFormulaParser {
 				} else {
 					$result = $processing_formula;
 				}
-			}			
-			// end iteration algorithm
-			////////////////////////////////////////////////////////
+			}
+			//
 		
 			if ($this->_correct==1) {	
 				return (array('done',$result));
