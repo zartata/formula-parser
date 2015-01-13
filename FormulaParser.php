@@ -117,7 +117,6 @@ class FormulaParser implements IFormulaParser {
 						break;
 						return;
 					}
-					
 					unset($array[$i-1],$array[$i+1]);
 					if ($otp==1) {
 						$array[$i]=$a;
@@ -132,27 +131,28 @@ class FormulaParser implements IFormulaParser {
 		
 		$a = 0;
 		if ((in_array('*',$array))||(in_array('/',$array))) {
-				for ($i=0; $i<=count($array)-1;$i++) {
-					if (($array[$i]==='*')||($array[$i]==='/')) {
-						if ($array[$i]==='*') {
-							$a = $array[$i-1]*$array[$i+1];
-						} elseif ($array[$i]==='/') {
-							if ($array[$i+1]!=0) {
-								$a = round($array[$i-1]/$array[$i+1],10);
-							} else {
-								// @rule  one can not divide by 0
-								$this->_correct=0;
-								break;
-								return;
-							}
+			for ($i=0; $i<=count($array)-1;$i++) {
+				if (($array[$i]==='*')||($array[$i]==='/')) {
+					if ($array[$i]==='*') {
+						$a = $array[$i-1]*$array[$i+1];
+					} elseif ($array[$i]==='/') {
+						if ($array[$i+1]!=0) {
+							$a = round($array[$i-1]/$array[$i+1],10);
+						} else {
+							// @rule  one can not divide by 0
+							$this->_correct=0;
+							break;
+							return;
 						}
+					}
 					unset($array[$i-1],$array[$i+1]);
 					$array[$i]=$a;
 					$array = $this->reKeyArray($array);
 					$i = 0;
-					}
 				}
+			}
 		}
+		
 		return $array;
 	}
 	
@@ -167,19 +167,19 @@ class FormulaParser implements IFormulaParser {
 	{
 		$a = 0;
 		if ((in_array('+',$array))||(in_array('-',$array))) {
-				for ($i=0; $i<=count($array)-1;$i++) {
-					if (($array[$i]==='+')||($array[$i]==='-')) {
-						if ($array[$i]==='+') {
-							$a = $array[$i-1]+$array[$i+1];
-						} elseif ($array[$i]==='-') {
-							$a = $array[$i-1]-$array[$i+1];
-						}
+			for ($i=0; $i<=count($array)-1;$i++) {
+				if (($array[$i]==='+')||($array[$i]==='-')) {
+					if ($array[$i]==='+') {
+						$a = $array[$i-1]+$array[$i+1];
+					} elseif ($array[$i]==='-') {
+						$a = $array[$i-1]-$array[$i+1];
+					}
 					unset($array[$i-1],$array[$i+1]);
 					$array[$i]=$a;
 					$array = $this->reKeyArray($array);
 					$i = 0;
-					}
 				}
+			}
 		}
 		
 		if (count($array)!=1) {
@@ -218,16 +218,17 @@ class FormulaParser implements IFormulaParser {
 		
 		for ($i=0; $i<=strlen($str)-1; $i++) {
 			if ($i<strlen($str)-1) {
-			if ( (($str[$i]=='+')||($str[$i]=='-')||($str[$i]=='*')||($str[$i]=='/')||($str[$i]=='^')) 
-			&& (($str[$i+1]=='+')||($str[$i+1]=='*')||($str[$i+1]=='/')||($str[$i+1]=='^')) ) {
-				$this->_correct = 0;
-				break;
-			} 
+				if ((($str[$i]=='+')||($str[$i]=='-')||($str[$i]=='*')||($str[$i]=='/')
+				||($str[$i]=='^'))
+				&& (($str[$i+1]=='+')||($str[$i+1]=='*')||($str[$i+1]=='/')||($str[$i+1]=='^'))) {
+					$this->_correct = 0;
+					break;
+				} 
 			}
 		}
 		
 		for ($i=0; $i<=strlen($str)-1; $i++) {
-			if ( (($str[$i]=='+')||($str[$i]=='-')||($str[$i]=='*')||($str[$i]=='/')||($str[$i]=='^')) 
+			if ((($str[$i]=='+')||($str[$i]=='-')||($str[$i]=='*')||($str[$i]=='/')||($str[$i]=='^')) 
 			&& (($str[$i+1]=='+')||($str[$i+1]=='-')||($str[$i+1]=='*')||($str[$i+1]=='/')
 			||($str[$i+1]=='^')) 
 			&& (($str[$i+2]=='+')||($str[$i+2]=='-')||($str[$i+2]=='*')||($str[$i+2]=='/')
@@ -273,7 +274,7 @@ class FormulaParser implements IFormulaParser {
 		$main_array = $this->calculate1($main_array);
 		$main_array = $this->calculate2($main_array);
 		
-		return round($main_array,$this->_characters_number);
+		return round($main_array, $this->_characters_number);
 	}
 	
 	/**
@@ -306,7 +307,7 @@ class FormulaParser implements IFormulaParser {
 	{
 		$result = 0;
 		
-		$test = ''; $test = $this->_formula;		
+		$test = $this->_formula;		
 		
 		//// check the correctness of the entered formula
 		if ((empty($test))||(!strpbrk($test,'0123456789'))||(!strpbrk($test,'+-*/^'))) {
@@ -317,7 +318,7 @@ class FormulaParser implements IFormulaParser {
 			} elseif ($this->_lang=='es') {
 				$msg = 'Usted no ha entrado en la fórmula.';
 			}
-		return (array('error',$msg));
+			return (array('error',$msg));
 		}
 		
 		if (strlen($test)>$this->_max_length) {
@@ -328,7 +329,7 @@ class FormulaParser implements IFormulaParser {
 			} elseif ($this->_lang=='es') {
 				$msg = 'La fórmula puede contener no más de '.$this->_max_length.' caracteres.';
 			}
-		return (array('error',$msg));
+			return (array('error',$msg));
 		}
 		
 		// check for an equality of opening and closing parentheses
@@ -348,14 +349,13 @@ class FormulaParser implements IFormulaParser {
 			} elseif ($this->_lang=='es') {
 				$msg = 'Número de apertura y cierre paréntesis debe ser igual.';
 			}   
-		return (array('error',$msg));
+			return (array('error',$msg));
 		}
 		
 		// check for an absence of excess parentheses
 		$ok1 = $ok2 = NULL;
 		while ((($test[0]=='(')&&(substr($test, -1)==')'))&&(($ok1!==0)||($ok2!==0))) {
-			
-			$ok1 = NULL; $ok2 = NULL;
+			$ok1 = $ok2 = NULL;
 			for ($i=1; $i<=strlen($test)-1; $i++) {
 				if ($test[$i]=='(') {
 					$ok1 = 1;
@@ -364,7 +364,6 @@ class FormulaParser implements IFormulaParser {
 				}
 				if ($ok1===0) break;
 			}
-			
 			for ($i=strlen($test)-2; $i>=0; $i--) {
 				if ($test[$i]==')') {
 					$ok2 = 1;
@@ -373,7 +372,6 @@ class FormulaParser implements IFormulaParser {
 				}
 				if ($ok2===0) break;
 			}
-
 			if (($ok1==1)&&($ok2==1)) {
 				$test = substr($test, 1); 
 				$test = substr($test, 0, strlen($test)-1);
@@ -398,9 +396,9 @@ class FormulaParser implements IFormulaParser {
 		} else {
 			
 			// begin an iteration algorithm
-			$work_formula =''; $processing_formula = ''; $temp = ''; 
+			$work_formula = ''; $processing_formula = ''; $temp = ''; 
 			$work_formula = $processing_formula = $this->_formula;
-						
+			
 			$brackets_count = 0;
 			for ($y=0; $y<=strlen($work_formula)-1; $y++) {
 				if ($work_formula[$y]=='(') {
@@ -412,7 +410,7 @@ class FormulaParser implements IFormulaParser {
 				
 				$start_cursor_pos = 0; $end_cursor_pos = 0;
 				$temp = $processing_formula;
-		
+				
 				while (strstr($temp,'(')) {
 					for ($i=0; $i<=strlen($temp)-1; $i++) {
 						if ($temp[$i]=='(') {
@@ -434,7 +432,6 @@ class FormulaParser implements IFormulaParser {
 					if (((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))
 					||(strstr($temp,'/'))||(strstr($temp,'^')))&&((strlen($temp))>=2)) {
 						$temp = $this->getPreResult($temp);
-			
 					} else {
 						$this->_correct=0;
 						break;
@@ -451,11 +448,10 @@ class FormulaParser implements IFormulaParser {
 					$processing_formula = substr($processing_formula, 0, $start_cursor_pos-1)
 					.$temp;
 				}
-			
+				
 				if ($this->_correct == 0) {
 					break;
 				}	
-			
 			}
 			
 			if ($processing_formula) {
@@ -468,7 +464,7 @@ class FormulaParser implements IFormulaParser {
 				}
 			}
 			//
-		
+			
 			if ($this->_correct==1) {	
 				return (array('done',$result));
 			} else {
