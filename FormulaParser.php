@@ -137,7 +137,7 @@ class FormulaParser implements IFormulaParser {
 						$a = $array[$i-1]*$array[$i+1];
 					} elseif ($array[$i]==='/') {
 						if ($array[$i+1]!=0) {
-							$a = round($array[$i-1]/$array[$i+1],10);
+							$a = round($array[$i-1]/$array[$i+1],$this->_characters_number);
 						} else {
 							// @rule  one can not divide by 0
 							$this->_correct=0;
