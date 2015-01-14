@@ -31,7 +31,7 @@ Then invoke the class in your project using the class constructor:
 
 The initialized object `$formula` has two public methods:
 
-`getResult()` Returns an array(0=>value1, 1=>value2), where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer or error message in the set language. The successful calculated answer is a float with set maximum number of characters after the decimal point.
+`getResult()` Returns an array(0=>value1, 1=>value2), where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer or error message in the set language. The successful calculated answer is a float.
 
 `getFormula()`  Returns the initially entered formula
 

@@ -15,7 +15,7 @@ interface IFormulaParser {
 	
 	public function getFormula();
 }
-
+ 
 class FormulaParser implements IFormulaParser {
 	
 	private $_formula = NULL;
@@ -59,21 +59,21 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	 * @name cutSymbol
-	 * @return string
-	 */
-	private function cutSymbol($str, $symbol)
-	{
-		return str_replace($symbol, '', $str);	
-	}
-	
-	/**
 	 * @name getFormula
 	 * @return string	The initially entered formula
 	 */
 	public function getFormula()
 	{
 		return $this->_original_formula;	
+	}
+	
+	/**
+	 * @name cutSymbol
+	 * @return string
+	 */
+	private function cutSymbol($str, $symbol)
+	{
+		return str_replace($symbol, '', $str);	
 	}
 	
 	/**
@@ -179,8 +179,7 @@ class FormulaParser implements IFormulaParser {
 					$i = 0;
 				}
 			}
-		}
-		
+		}	
 		if (count($array)!=1) {
 			$this->_correct=0;
 			return;
@@ -242,7 +241,6 @@ class FormulaParser implements IFormulaParser {
 		
 		// If everything is correct now, create and fill $main_array
 		$main_array = array();
-		
 		$count = 0;
 		
 		for ($i=0; $i<=strlen($str)-1; $i++) {
@@ -297,16 +295,13 @@ class FormulaParser implements IFormulaParser {
 	 * A main method of the class
 	 *
 	 * @name getResult
-	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, 
-	 *			which can be 'done' or 'error', and value2 is a calculated answer 
-	 *			or error message in the set language.
-	 * 			The successful calculated answer is a float with set maximum number 
-	 * 			of characters after the decimal point.
+	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, which can be 
+	 *			'done' or 'error', and value2 is a calculated answer or error message in the set language. 
+	 *			The successful calculated answer is a float.
 	 */
 	public function getResult()
 	{
 		$result = 0;
-		
 		$test = $this->_formula;		
 		
 		//// begin the validation of the formula
