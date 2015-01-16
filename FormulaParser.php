@@ -6,7 +6,7 @@
  *
  * @license  Licensed under MIT (https://github.com/denissimon/formula-parser/blob/master/LICENSE)
  *
- * @version  1.1-2014.12.05
+ * @version  2.0.0-2015.01.16
  */
  
 interface IFormulaParser {
@@ -190,35 +190,38 @@ class FormulaParser implements IFormulaParser {
 	
 	/**
 	 *
-	 * Calculate pre result
+	 * Calculate a subexpression of the formula
 	 *
-	 * @name getPreResult
-	 * @param string $str	Part of the formula
+	 * @name getSubexpressionResult
+	 * @param string $str	A particular portion (subexpression) of the formula
 	 * @return float
 	 */
-	private function getPreResult($str)
+	private function getSubexpressionResult( $str )
 	{
-		// syntax checks
-		if (($str[0]=='+')||($str[0]=='*')||($str[0]=='/')||($str[0]=='^')) {
-			$this->_correct = 0;
-			return; 
-		}
-		if ((substr($str, -1)=='+')||(substr($str, -1)=='-')||(substr($str, -1)=='*')
-		||(substr($str, -1)=='/')||(substr($str, -1)=='^')) {
-			$this->_correct = 0;
-			return; 
+		// transform numbers in scientific E notation
+		if (stristr($str,'e')) {
+			$str = strtolower($str);
+			if (preg_match('/(e)(?!\0|+|-)/',$str)) {
+				return (array('error',$this->errorMsg()));
+			}
+			$str = str_replace("e0", "*10^0", $str);
+			$str = str_replace("e+", "*10^", $str);
+			$str = str_replace("e-", "*10^-", $str);
 		}
 		
+		// begin syntax checks
 		if (strlen($str)<2) {
 			$this->_correct = 0;
 			return;
 		}
 		
+		$str = $this->syntaxExtraCheck($str);
+		
 		for ($i=0; $i<=strlen($str)-1; $i++) {
 			if ($i<strlen($str)-1) {
 				if ((($str[$i]=='+')||($str[$i]=='-')||($str[$i]=='*')||($str[$i]=='/')
 				||($str[$i]=='^'))
-				&& (($str[$i+1]=='+')||($str[$i+1]=='*')||($str[$i+1]=='/')||($str[$i+1]=='^'))) {
+				&& (($str[$i+1]=='*')||($str[$i+1]=='/')||($str[$i+1]=='^'))) {
 					$this->_correct = 0;
 					break;
 				} 
@@ -249,12 +252,15 @@ class FormulaParser implements IFormulaParser {
 			} else {
 				if (is_numeric($str[$i])) {
 					$main_array[$count] = $main_array[$count].$str[$i];
+				} elseif (($str[$i]=='.')&&(!is_numeric($str[$i-1]))&&(is_numeric($str[$i+1]))){
+					$count = $count+1;
+					$main_array[$count] = '0'.$str[$i];
 				} elseif (($str[$i]=='.')&&(is_numeric($str[$i-1]))&&(is_numeric($str[$i+1]))){
 					$main_array[$count] = $main_array[$count].$str[$i];	
-				} elseif (($str[$i]=='-')&&(($str[$i-1]=='+')||($str[$i-1]=='-')
-				||($str[$i-1]=='*')||($str[$i-1]=='/')||($str[$i-1]=='^'))&&(is_numeric($str[$i+1]))){
+				} elseif (($str[$i]=='-')&&(!is_numeric($str[$i-1]))&&(is_numeric($str[$i+1]))){
 					$count = $count+1;
-					$main_array[$count] = $main_array[$count].$str[$i];	
+					$main_array[$count] = $main_array[$count].$str[$i];
+				} elseif (($str[$i]=='+')&&(!is_numeric($str[$i-1]))&&(is_numeric($str[$i+1]))){				
 				} else {
 					$count = $count+1;
 					if (($str[$i]=='+')||($str[$i]=='-')||($str[$i]=='*')||($str[$i]=='/')
@@ -266,13 +272,35 @@ class FormulaParser implements IFormulaParser {
 			}
 		}
 		//
-		
+				
 		$main_array = $this->reKeyArray($main_array);
 		
 		$main_array = $this->calculate1($main_array);
 		$main_array = $this->calculate2($main_array);
-		
+				
 		return round($main_array, $this->_characters_number);
+	}
+	
+	/**
+	 *
+	 * Extra syntax check of the formula
+	 *	
+	 * @name syntaxExtraCheck
+	 * @param  $str				A particular portion (subexpression) of the formula
+	 * @return string
+	 */
+	private function syntaxExtraCheck ( $str ) {
+		if (($str[0]=='*')||($str[0]=='/')||($str[0]=='^')||($str[0]=='.')) {
+			$this->_correct = 0;
+		}
+		if ($str[0]=='+') {$str = substr($str, 1);}
+		
+		$substr = substr($str, -1);
+		if (($substr=='+')||($substr=='-')||($substr=='*')||($substr=='/')||($substr=='^')
+		||($substr=='.')) {
+			$this->_correct = 0;
+		}
+		return $str;
 	}
 	
 	/**
@@ -301,11 +329,19 @@ class FormulaParser implements IFormulaParser {
 	 */
 	public function getResult()
 	{
-		$result = 0;
-		$test = $this->_formula;		
+		$this->_formula = trim($this->_formula);
+				
+		// transform constants Pi
+		if (stristr($this->_formula,'pi')) {
+			$this->_formula = strtolower($this->_formula);
+			if ((preg_match('/(\d|e)(?=pi)/',$this->_formula))||(preg_match('/(pi)(?=\d|e)/',$this->_formula))) {
+				return (array('error',$this->errorMsg()));
+			}
+			$this->_formula = str_replace("pi", M_PI, $this->_formula);
+		}
 		
 		//// begin the validation of the formula
-		if ((empty($test))||(!strpbrk($test,'0123456789'))||(!strpbrk($test,'+-*/^'))) {
+		if (($this->_formula=='')||(!strpbrk($this->_formula,'0123456789'))) {
 			if ($this->_lang=='en') {
 				$msg = 'You have not entered the formula.';
 			} elseif ($this->_lang=='ru') {
@@ -316,7 +352,7 @@ class FormulaParser implements IFormulaParser {
 			return (array('error',$msg));
 		}
 		
-		if (strlen($test)>$this->_max_length) {
+		if (strlen($this->_formula)>$this->_max_length) {
 			if ($this->_lang=='en') {
 				$msg = 'The formula can contain no more than '.$this->_max_length.' characters.';
 			} elseif ($this->_lang=='ru') {
@@ -328,15 +364,8 @@ class FormulaParser implements IFormulaParser {
 		}
 		
 		// check for an equality of opening and closing parentheses
-		$open_count = 0; $close_count = 0;
-		for ($i=0; $i<=strlen($test)-1; $i++) {
-			if ($test[$i]=='(') {
-				$open_count = $open_count+1;
-			} elseif ($test[$i]==')') {
-				$close_count = $close_count+1;
-			}
-		}
-		if ($open_count!=$close_count) {
+		$open_count = substr_count($this->_formula,'('); $close_count = substr_count($this->_formula,')');
+		if (($open_count>0||$close_count>0)&&($open_count!=$close_count)) {
 			if ($this->_lang=='en') {
 				$msg = 'Number of opening and closing parenthesis must be equal.';
 			} elseif ($this->_lang=='ru') {
@@ -346,39 +375,24 @@ class FormulaParser implements IFormulaParser {
 			}   
 			return (array('error',$msg));
 		}
-		
-		// check for an absence of excess parentheses
-		$ok1 = $ok2 = NULL;
-		while ((($test[0]=='(')&&(substr($test, -1)==')'))&&(($ok1!==0)||($ok2!==0))) {
-			$ok1 = $ok2 = NULL;
-			for ($i=1; $i<=strlen($test)-1; $i++) {
-				if ($test[$i]=='(') {
-					$ok1 = 1;
-				} elseif (($test[$i]==')')&&($ok1!=1)) {
-					$ok1 = 0;
-				}
-				if ($ok1===0) break;
-			}
-			for ($i=strlen($test)-2; $i>=0; $i--) {
-				if ($test[$i]==')') {
-					$ok2 = 1;
-				} elseif (($test[$i]=='(')&&($ok2!=1)) {
-					$ok2 = 0;
-				}
-				if ($ok2===0) break;
-			}
-			if (($ok1==1)&&($ok2==1)) {
-				$test = substr($test, 1); 
-				$test = substr($test, 0, strlen($test)-1);
-				$this->_formula = $test;
-			}
+			
+		// check for syntactic correctness
+		if ((strstr($this->_formula, ')('))||(strstr($this->_formula, '()'))) {
+			return (array('error',$this->errorMsg()));
 		}
+		if ((preg_match('/(\d)(?=\()/',$this->_formula))||(preg_match('/(\))(?=\d)/',$this->_formula))) {
+			return (array('error',$this->errorMsg()));
+		}
+		$this->_formula = $this->syntaxExtraCheck($this->_formula);
+		
+		$result = 0;
+		$test = $this->_formula;
 		
 		if (strstr($test, '/')) {$test = $this->cutSymbol($test, '/');}
 		if (strstr($test, '(')) {$test = $this->cutSymbol($test, '(');}
 		if (strstr($test, ')')) {$test = $this->cutSymbol($test, ')');}
 		
-		if ((preg_match('/[^0-9*+-^.]/',$test))||(strstr($test,' '))){
+		if ((preg_match('/[^0-9*+-^.e]/',$test))||(strstr($test,' '))){
 			if ($this->_lang=='en') {
 				$msg = 'The formula can contain only numbers, operators +-*/^ and parentheses, no spaces.';
 			} elseif ($this->_lang=='ru') {
@@ -387,84 +401,78 @@ class FormulaParser implements IFormulaParser {
 				$msg = 'La fórmula puede contener cifras, los operadores +-*/^ y paréntesis, sin espacios.';
 			}
 			return (array('error',$msg));
+		}
+		$test = NULL;
 		////
-		} else {
+		
+		if ($this->_correct==0) { return (array('error',$this->errorMsg())); }
+		
+		$temp = '';
+		$processing_formula = $this->_formula;
 			
-			$work_formula = ''; $processing_formula = ''; $temp = ''; 
-			$work_formula = $processing_formula = $this->_formula;
+		//// run an iterative algorithm
+		while (strstr($processing_formula,'(')||strstr($processing_formula,')')) {	
+			$start_cursor_pos = 0; $end_cursor_pos = 0;
+			$temp = $processing_formula;
 			
-			$brackets_count = 0;
-			for ($y=0; $y<=strlen($work_formula)-1; $y++) {
-				if ($work_formula[$y]=='(') {
-					$brackets_count = $brackets_count+1;
+			while (strstr($temp,'(')) {
+				for ($i=0; $i<=strlen($temp)-1; $i++) {
+					if ($temp[$i]=='(') {
+						$temp = substr($temp, $i+1);
+						$start_cursor_pos = $start_cursor_pos+$i+1;
+					}
 				}
 			}
 			
-			// run an iterative algorithm
-			for ($yy=1; $yy<=$brackets_count; $yy++) {
-				
-				$start_cursor_pos = 0; $end_cursor_pos = 0;
-				$temp = $processing_formula;
-				
-				while (strstr($temp,'(')) {
-					for ($i=0; $i<=strlen($temp)-1; $i++) {
-						if ($temp[$i]=='(') {
-							$temp = substr($temp, $i+1);
-							$start_cursor_pos = $start_cursor_pos+$i+1;
-						}
-					}
-				}
-				
-				for ($ii=0; $ii<=strlen($temp)-1; $ii++) {
-					if ($temp[$ii]==')') {
-						$end_cursor_pos = ((strlen($temp))-$ii);
-						$temp = substr($temp, 0, $ii);
-						break;
-					}
-				}
-				
-				if ($temp) {
-					if (((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))
-					||(strstr($temp,'/'))||(strstr($temp,'^')))&&((strlen($temp))>=2)) {
-						$temp = $this->getPreResult($temp);
-					} else {
-						$this->_correct=0;
-						break;
-					}
-				} else {
-					$this->_correct=0;
+			for ($ii=0; $ii<=strlen($temp)-1; $ii++) {
+				if ($temp[$ii]==')') {
+					$end_cursor_pos = ((strlen($temp))-$ii);
+					$temp = substr($temp, 0, $ii);
 					break;
 				}
-				
-				if ((substr($processing_formula, -1))!=')') {
-					$processing_formula = substr($processing_formula, 0, $start_cursor_pos-1)
-					.$temp.substr($processing_formula, (($end_cursor_pos*-1)+1));
-				} else {
-					$processing_formula = substr($processing_formula, 0, $start_cursor_pos-1)
-					.$temp;
-				}
-				
-				if ($this->_correct == 0) {
-					break;
-				}	
 			}
 			
-			if ($processing_formula) {
-				if (((strstr($processing_formula,'+'))||(strstr($processing_formula,'-'))
-				||(strstr($processing_formula,'*'))||(strstr($processing_formula,'/'))
-				||(strstr($processing_formula,'^')))&&((strlen($processing_formula))>=3)) {
-					$result = $this->getPreResult($processing_formula);
-				} else {
-					$result = $processing_formula;
-				}
+			if (($temp)=='0') $temp = '0+0';	
+			if (($temp)&&(((((strstr($temp,'+'))||(strstr($temp,'-'))||(strstr($temp,'*'))
+			||(strstr($temp,'/'))||(strstr($temp,'^')))&&((strlen($temp))>=2)))
+			||(is_numeric($temp)))){
+				$temp = $this->getSubexpressionResult($temp.'+0');
+			} else {	
+				$this->_correct=0;
+				break;
 			}
-			//
 			
-			if ($this->_correct==1) {	
-				return (array('done',$result));
+			// optimize excess parentheses to reduce the number of iterations,
+			// and rewrite at once $processing formula for the next iteration
+			if (($processing_formula[$start_cursor_pos-2]=='(') 
+			&& ($processing_formula[strlen($processing_formula)-$end_cursor_pos+1]==')')) {
+				$processing_formula = substr($processing_formula, 0, $start_cursor_pos-2)
+				.$temp.substr($processing_formula, strlen($processing_formula)-$end_cursor_pos+2);	
 			} else {
-				return (array('error',$this->errorMsg()));
+				$processing_formula = substr($processing_formula, 0, $start_cursor_pos-1)
+				.$temp.substr($processing_formula, strlen($processing_formula)-$end_cursor_pos+1);
 			}
+			
+			if ($this->_correct == 0) {
+				break;
+			}	
+		}
+		
+		if ($processing_formula) {
+			if (((strstr($processing_formula,'+'))||(strstr($processing_formula,'-'))
+			||(strstr($processing_formula,'*'))||(strstr($processing_formula,'/'))
+			||(strstr($processing_formula,'^')))&&(strlen($processing_formula)>=2)) {
+				$result = $this->getSubexpressionResult($processing_formula);
+			} else {
+				$result = round($processing_formula,$this->_characters_number);
+			}
+		}
+		////
+		
+		if ($this->_correct==1) {	
+			return (array('done',$result));
+		} else {
+			return (array('error',$this->errorMsg()));
 		}
 	}
 }
