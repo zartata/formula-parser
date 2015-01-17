@@ -1,7 +1,7 @@
 Formula Parser
 ==============
 
-Formula Parser is a PHP class that provides the functionality to parse and evaluate mathematical formulas entered as a string.
+Formula Parser is a PHP class for parsing and evaluating mathematical formula entered as a string.
 
 Key features:
 * Uses Float for calculation and result
@@ -42,7 +42,7 @@ The initialized object `$formula` has two public methods:
 Example
 -------
 
-Let's see how easy this class is to use. For example, user's formula is: ((8+(10*(3+5)))/2.1)-5^2
+The following example shows how easy this class is to use. For instance, user's formula is: ((8+(10*(3+5)))/2.1)-5^2
 
 ```
 $formula = new FormulaParser('((8+(10*(3+5)))/2.1)-5^2', 'en', 4);
@@ -54,7 +54,7 @@ if ($result[0]=='done') {
 }
 ```
 
-More examples of expressions can be found on [www.yoursimpleformula.com](http://www.yoursimpleformula.com) - the web application made using Formula Parser class.
+More examples can be found on [www.yoursimpleformula.com](http://www.yoursimpleformula.com) - the web application made using Formula Parser class.
 
 ###License
 
