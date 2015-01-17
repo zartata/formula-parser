@@ -33,9 +33,9 @@ class FormulaParser implements IFormulaParser {
 	 * Constructor
 	 *
 	 * @param string  $input_string	        The formula entered as a string
-	 * @param string  $language		        Setting the language ('en', 'ru' or 'es')
-	 * @param integer $precision_rounding    Setting the precision rounding (maximum number of characters after the decimal point 
-	 * 				        in a calculated answer)
+	 * @param string  $language		Setting the language ('en', 'ru' or 'es')
+	 * @param integer $precision_rounding   Setting the maximum number of characters after the decimal point 
+	 * 				        in a calculated answer
 	 */
 	public function __construct($input_string, $language, $precision_rounding)
 	{
@@ -267,7 +267,7 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Extra syntax check of the formula
 	 *
-	 * @param  $str				A particular portion (subexpression) of the formula
+	 * @param  $str		A particular portion (subexpression) of the formula
 	 * @return string
 	 */
 	private function syntaxExtraCheck ( $str ) {
