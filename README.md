@@ -3,17 +3,14 @@ Formula Parser
 
 Formula Parser is a PHP class for parsing and evaluating mathematical formula entered as a string.
 
-Key features:
-* Uses Float for calculation and result
-* Precision rounding can be set
-* Unlimited nested parentheses
-* Makes validation and multilingual responses
- 
 Supported:
 * Operators +, -, *, /, ^
 * Numbers with decimal point '.'
-* Numbers in scientific E notation (e0, e+, e-)
 * Constants: pi
+* Unlimited nested parentheses
+* Build-in validation and multilingual responses
+
+Formula Parser uses Float for calculation and result.
 
 Setup and Usage
 ---------------
