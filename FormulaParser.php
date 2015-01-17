@@ -303,8 +303,9 @@ class FormulaParser implements IFormulaParser {
 	/** 
 	 * Validates, parses and evaluates the entered formula
 	 *
-	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, which can be 
-	 *			'done' or 'error', and value2 is a calculated answer or error message in the set language. 
+	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, 
+	 * 			which can be 'done' or 'error', and value2 is a calculated answer 
+	 * 			or error message in the set language. 
 	 */
 	public function getResult()
 	{
@@ -313,7 +314,8 @@ class FormulaParser implements IFormulaParser {
 		// transform constants Pi
 		if (stristr($this->_formula,'pi')) {
 			$this->_formula = strtolower($this->_formula);
-			if ((preg_match('/(\d|e)(?=pi)/',$this->_formula))||(preg_match('/(pi)(?=\d|e)/',$this->_formula))) {
+			if ((preg_match('/(\d|e)(?=pi)/',$this->_formula))
+			||(preg_match('/(pi)(?=\d|e)/',$this->_formula))) {
 				return (array('error',$this->errorMsg()));
 			}
 			$this->_formula = str_replace("pi", M_PI, $this->_formula);
@@ -362,11 +364,14 @@ class FormulaParser implements IFormulaParser {
 		
 		if ((preg_match('/[^0-9*+-^.e]/',$test))||(strstr($test,' '))){
 			if ($this->_lang=='en') {
-				$msg = 'The formula can contain only numbers, operators +-*/^, supported constants and parentheses, no spaces.';
+				$msg = 'The formula can contain only numbers, operators +-*/^, supported constants 
+				and parentheses, no spaces.';
 			} elseif ($this->_lang=='ru') {
-				$msg = 'Формула может содержать только цифры, операторы +-*/^, поддерживаемые константы и скобки, без пробелов.';
+				$msg = 'Формула может содержать только цифры, операторы +-*/^, поддерживаемые константы 
+				и скобки, без пробелов.';
 			} elseif ($this->_lang=='es') {
-				$msg = 'La fórmula puede contener cifras, los operadores +-*/^, soportadas constantes y paréntesis, sin espacios.';
+				$msg = 'La fórmula puede contener cifras, los operadores +-*/^, soportadas constantes 
+				y paréntesis, sin espacios.';
 			}
 			return (array('error',$msg));
 		}
