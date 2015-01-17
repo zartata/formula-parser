@@ -1,12 +1,13 @@
 <?php
 /**
- * Formula Parser - A PHP class for parsing of mathematical formula entered as a string
+ *
+ * Formula Parser - A PHP class for parsing and evaluating mathematical formula entered as a string
  *
  * @author   Denis Simon <hellodenissimon@gmail.com>
  *
  * @license  Licensed under MIT (https://github.com/denissimon/formula-parser/blob/master/LICENSE)
  *
- * @version  2.0.0-2015.01.16
+ * @version  2.1.0-2015.01.17
  */
  
 interface IFormulaParser {
@@ -26,40 +27,32 @@ class FormulaParser implements IFormulaParser {
 	
 	private $_lang = 'en';
 	
-	private $_max_length = 10000;
-	
-	private $_characters_number = 4;
+	private $_precision_rounding = 4;
 	
 	/**
-	 *
 	 * Constructor
 	 *
 	 * @param string  $input_string	        The formula entered as a string
-	 * @param string  $lang		        Setting the language ('en', 'ru' or 'es')
-	 * @param integer $max_length	        Setting the maximum possible length of the formula
-	 * @param integer $characters_number    Setting the maximum number of characters after the decimal point 
-	 * 				        in a calculated answer
+	 * @param string  $language		        Setting the language ('en', 'ru' or 'es')
+	 * @param integer $precision_rounding    Setting the precision rounding (maximum number of characters after the decimal point 
+	 * 				        in a calculated answer)
 	 */
-	public function __construct($input_string, $lang, $max_length, $characters_number)
+	public function __construct($input_string, $language, $precision_rounding)
 	{
 		$this->_formula = $this->_original_formula = $input_string;
 		
-		$lang_array = array('en','ru','es');
-		if (in_array($lang, $lang_array)) {
-			$this->_lang = $lang;
+		if (in_array($language, array('en','ru','es'))) {
+			$this->_lang = $language;
 		}
 		
-		if ($max_length<=0) $max_length = 10000;
-		$this->_max_length = (int)$max_length;
+		$this->_precision_rounding = abs((int)$precision_rounding);
 		
-		if ($characters_number<0) $characters_number = 4;
-		$this->_characters_number = (int)$characters_number;
-		
-		unset($input_string, $lang, $max_length, $characters_number);
+		unset($input_string, $language, $precision_rounding);
 	}
 	
 	/**
-	 * @name getFormula
+	 * Returns the text of the formula passed to the constructor
+	 *
 	 * @return string	The initially entered formula
 	 */
 	public function getFormula()
@@ -68,19 +61,18 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	 * @name cutSymbol
+	 * Helper: removes any number of a specified character from a given string
+	 *
 	 * @return string
 	 */
-	private function cutSymbol($str, $symbol)
+	private function removeSymbol($str, $symbol)
 	{
 		return str_replace($symbol, '', $str);	
 	}
 	
 	/**
-	 * 
-	 * Sort an array by key
+	 * Helper: sorts a given array by key
 	 *
-	 * @name reKeyArray
 	 * @return array
 	 */
 	private function reKeyArray(array $array)
@@ -92,10 +84,8 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
+	 * Calculates first-order operations ^, * and /
 	 *
-	 * Calculate first-order operations ^, * and /
-	 *
-	 * @name calculate1
 	 * @return array
 	 */
 	private function calculate1(array $array)
@@ -137,7 +127,7 @@ class FormulaParser implements IFormulaParser {
 						$a = $array[$i-1]*$array[$i+1];
 					} elseif ($array[$i]==='/') {
 						if ($array[$i+1]!=0) {
-							$a = round($array[$i-1]/$array[$i+1],$this->_characters_number);
+							$a = round($array[$i-1]/$array[$i+1],$this->_precision_rounding);
 						} else {
 							// @rule  one can not divide by 0
 							$this->_correct=0;
@@ -156,10 +146,8 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
+	 * Calculates second-order operations + and -
 	 *
-	 * Calculate second-order operations + and -
-	 *
-	 * @name calculate2
 	 * @return array
 	 */
 	private function calculate2(array $array)
@@ -189,10 +177,8 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
+	 * Validates, parses and evaluates a subexpression of the formula
 	 *
-	 * Calculate a subexpression of the formula
-	 *
-	 * @name getSubexpressionResult
 	 * @param string $str	A particular portion (subexpression) of the formula
 	 * @return float
 	 */
@@ -201,7 +187,7 @@ class FormulaParser implements IFormulaParser {
 		// transform numbers in scientific E notation
 		if (stristr($str,'e')) {
 			$str = strtolower($str);
-			if (preg_match('/(e)(?!\0|+|-)/',$str)) {
+			if (preg_match('/(e)(?!\0|\+|\-)/',$str)) {
 				return (array('error',$this->errorMsg()));
 			}
 			$str = str_replace("e0", "*10^0", $str);
@@ -209,9 +195,9 @@ class FormulaParser implements IFormulaParser {
 			$str = str_replace("e-", "*10^-", $str);
 		}
 		
-		// begin syntax checks
+		// syntax checks
 		if (strlen($str)<2) {
-			$this->_correct = 0;
+			$this->_correct = 0; 
 			return;
 		}
 		
@@ -242,7 +228,6 @@ class FormulaParser implements IFormulaParser {
 		
 		if ($this->_correct==0) {return;}
 		
-		// If everything is correct now, create and fill $main_array
 		$main_array = array();
 		$count = 0;
 		
@@ -271,21 +256,17 @@ class FormulaParser implements IFormulaParser {
 				}
 			}
 		}
-		//
 				
 		$main_array = $this->reKeyArray($main_array);
-		
 		$main_array = $this->calculate1($main_array);
 		$main_array = $this->calculate2($main_array);
 				
-		return round($main_array, $this->_characters_number);
+		return round($main_array, $this->_precision_rounding);
 	}
 	
 	/**
-	 *
 	 * Extra syntax check of the formula
-	 *	
-	 * @name syntaxExtraCheck
+	 *
 	 * @param  $str				A particular portion (subexpression) of the formula
 	 * @return string
 	 */
@@ -304,28 +285,26 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	 * @name errorMsg
+	 * Returns a syntax error message in the set language
+	 *
 	 * @return string
 	 */
 	private function errorMsg()
 	{
 		if ($this->_lang=='en') {
-			return 'Please check the specified formula for syntactic correctness.';
+			return 'Please check the specified formula for the syntactic correctness.';
 		} elseif ($this->_lang=='ru') {
 			return 'Пожалуйста, проверьте указанную формулу на корректность синтаксиса.';
 		} elseif ($this->_lang=='es') {
-			return 'Por favor, compruebe la fórmula especificada por la corrección sintáctica.';
+			return 'Por favor, compruebe la fórmula especificada para la corrección sintáctica.';
 		}
 	}
 	
-	/**
-	 * 
-	 * A main method of the class
+	/** 
+	 * Validates, parses and evaluates the entered formula
 	 *
-	 * @name getResult
 	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, which can be 
 	 *			'done' or 'error', and value2 is a calculated answer or error message in the set language. 
-	 *			The successful calculated answer is a float.
 	 */
 	public function getResult()
 	{
@@ -340,7 +319,7 @@ class FormulaParser implements IFormulaParser {
 			$this->_formula = str_replace("pi", M_PI, $this->_formula);
 		}
 		
-		//// begin the validation of the formula
+		//// validation of the formula
 		if (($this->_formula=='')||(!strpbrk($this->_formula,'0123456789'))) {
 			if ($this->_lang=='en') {
 				$msg = 'You have not entered the formula.';
@@ -351,18 +330,7 @@ class FormulaParser implements IFormulaParser {
 			}
 			return (array('error',$msg));
 		}
-		
-		if (strlen($this->_formula)>$this->_max_length) {
-			if ($this->_lang=='en') {
-				$msg = 'The formula can contain no more than '.$this->_max_length.' characters.';
-			} elseif ($this->_lang=='ru') {
-				$msg = 'Формула может включать не более '.$this->_max_length.' символов.';
-			} elseif ($this->_lang=='es') {
-				$msg = 'La fórmula puede contener no más de '.$this->_max_length.' caracteres.';
-			}
-			return (array('error',$msg));
-		}
-		
+				
 		// check for an equality of opening and closing parentheses
 		$open_count = substr_count($this->_formula,'('); $close_count = substr_count($this->_formula,')');
 		if (($open_count>0||$close_count>0)&&($open_count!=$close_count)) {
@@ -388,17 +356,17 @@ class FormulaParser implements IFormulaParser {
 		$result = 0;
 		$test = $this->_formula;
 		
-		if (strstr($test, '/')) {$test = $this->cutSymbol($test, '/');}
-		if (strstr($test, '(')) {$test = $this->cutSymbol($test, '(');}
-		if (strstr($test, ')')) {$test = $this->cutSymbol($test, ')');}
+		if (strstr($test, '/')) {$test = $this->removeSymbol($test, '/');}
+		if (strstr($test, '(')) {$test = $this->removeSymbol($test, '(');}
+		if (strstr($test, ')')) {$test = $this->removeSymbol($test, ')');}
 		
 		if ((preg_match('/[^0-9*+-^.e]/',$test))||(strstr($test,' '))){
 			if ($this->_lang=='en') {
-				$msg = 'The formula can contain only numbers, operators +-*/^ and parentheses, no spaces.';
+				$msg = 'The formula can contain only numbers, operators +-*/^, supported constants and parentheses, no spaces.';
 			} elseif ($this->_lang=='ru') {
-				$msg = 'Формула может содержать только цифры, операторы +-*/^ и скобки, без пробелов.';
+				$msg = 'Формула может содержать только цифры, операторы +-*/^, поддерживаемые константы и скобки, без пробелов.';
 			} elseif ($this->_lang=='es') {
-				$msg = 'La fórmula puede contener cifras, los operadores +-*/^ y paréntesis, sin espacios.';
+				$msg = 'La fórmula puede contener cifras, los operadores +-*/^, soportadas constantes y paréntesis, sin espacios.';
 			}
 			return (array('error',$msg));
 		}
@@ -442,8 +410,7 @@ class FormulaParser implements IFormulaParser {
 				break;
 			}
 			
-			// optimize excess parentheses to reduce the number of iterations,
-			// and rewrite at once $processing formula for the next iteration
+			// optimize excess parentheses to reduce the number of iterations
 			if (($processing_formula[$start_cursor_pos-2]=='(') 
 			&& ($processing_formula[strlen($processing_formula)-$end_cursor_pos+1]==')')) {
 				$processing_formula = substr($processing_formula, 0, $start_cursor_pos-2)
@@ -464,7 +431,7 @@ class FormulaParser implements IFormulaParser {
 			||(strstr($processing_formula,'^')))&&(strlen($processing_formula)>=2)) {
 				$result = $this->getSubexpressionResult($processing_formula);
 			} else {
-				$result = round($processing_formula,$this->_characters_number);
+				$result = round($processing_formula,$this->_precision_rounding);
 			}
 		}
 		////
