@@ -52,40 +52,40 @@ class FormulaParser implements IFormulaParser {
 	 * The selected precision rounding of the answer
 	 */	
 	private $_precision_rounding = 4;
-		
+	
 	/**
 	 * Constructor
 	 *
-	 * @param string	$input_string	        The formula entered as a string
-	 * @param string	$language		Setting the language
-	 * @param integer	$precision_rounding   Setting the maximum number of digits after the decimal point 
+	 * @param string  $input_string	        The formula entered as a string
+	 * @param string  $language		Setting the language
+	 * @param integer $precision_rounding   Setting the maximum number of digits after the decimal point 
 	 * 				        in a calculated answer
 	 */
 	public function __construct($input_string, $language, $precision_rounding)
 	{
 		$this->_formula = $this->_original_formula = $input_string;
-		
+			
 		if (in_array($language, array('en','ru','es'))) {
 			$this->_lang = $language;
 		}
-		
+			
 		$this->_precision_rounding = abs((int)$precision_rounding);
-		
+			
 		unset($input_string, $language, $precision_rounding);
 	}
 	
 	/**
-     * Magic overloading method
-     *
-     * @param string	$name
-     * @param array		$arguments
-	 *    
+	 * Magic overloading method
+	 * 
+	 * @param string $name
+	 * @param array  $arguments
+	 * 
 	 * @throws Exception when the method doesn't exist
-     */
-    public function __call($name, $arguments)
-    {
+	 */
+	public function __call($name, $arguments)
+	{
 		throw new Exception("No such method exists: $name (".implode(', ', $arguments).")");
-    }
+	}
 	
 	/**
 	 * Returns the text of the formula passed to the constructor
@@ -100,7 +100,7 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Helper: sorts a given array by key
 	 *
-	 * @param array	$array
+	 * @param array $array
 	 *
 	 * @return array
 	 */
@@ -123,7 +123,7 @@ class FormulaParser implements IFormulaParser {
 		}
 		return true;
 	}
-				
+	
 	/**
 	 * Calculates first-order operations ^, * and /
 	 *
@@ -247,13 +247,13 @@ class FormulaParser implements IFormulaParser {
 	 * Parses and evaluates a subexpression of the formula
 	 *
 	 * @param string $str	A particular portion (subexpression) of the formula.
-	 *						It's in parentheses, or the whole formula if there are no parentheses.
+	 *			It's in parentheses, or the whole formula if there are no parentheses.
 	 * @return float
 	 */
 	private function getAnswer( $str )
 	{
 		$str = trim($str);
-				
+		
 		$this->_expression = $str;
 		
 		$strlen = strlen($str);
@@ -356,7 +356,7 @@ class FormulaParser implements IFormulaParser {
 						$temp_array[] = $main_array[$i+1];
 					} else {
 						if (($main_array[$i-1]==='-')&&($main_array[$i-2]!=='-')) {
-								$temp_array[] = $main_array[$i+1];
+							$temp_array[] = $main_array[$i+1];
 						} elseif (($main_array[$i-1]==='-')&&($main_array[$i-2]==='-')) {
 							$this->_correct = 0;
 							break;
@@ -369,11 +369,10 @@ class FormulaParser implements IFormulaParser {
 						if ($temp_array)
 							$temp_array[] = '+';
 					} elseif (($item==='-')&&($main_array[$i+1]==='+')) {
-							if ($temp_array) {
-								$temp_array[] = '+';
-							}
-							$temp_array[] = '0';
-							$temp_array[] = '-';
+						if ($temp_array)
+							$temp_array[] = '+';
+						$temp_array[] = '0';
+						$temp_array[] = '-';
 					} else {
 						$temp_array[] = $item;
 					}
@@ -393,9 +392,8 @@ class FormulaParser implements IFormulaParser {
 		$main_array = $this->calculate1($main_array);
 		$main_array = $this->calculate2($main_array);
 		
-		if (count($main_array)!=1) {
+		if (count($main_array)!=1)
 			$this->_correct=0;
-		}
 		
 		return round($main_array[0], $this->_precision_rounding);
 	}
@@ -405,10 +403,10 @@ class FormulaParser implements IFormulaParser {
 	 * where the base is a negative number in parentheses.
 	 * If yes - calculates it correctly.
 	 *
-	 * @param string	$expression
-	 * @param integer	$length
-	 * @param integer	$cursor
-	 * @param float		$base
+	 * @param string  $expression
+	 * @param integer $length
+	 * @param integer $cursor
+	 * @param float	  $base
 	 *
 	 * @return mixed
 	 */
@@ -456,8 +454,8 @@ class FormulaParser implements IFormulaParser {
 		// Syntax error
 		if ($this->_error_type==1) {
 			if ($this->_lang=='en') {
-			return 'The formula can contain only numbers, operators +-*/^, supported constants 
-			and parentheses.';
+				return 'The formula can contain only numbers, operators +-*/^, supported constants 
+				and parentheses.';
 			} elseif ($this->_lang=='ru') {
 				return 'Формула может содержать только цифры, операторы +-*/^, поддерживаемые константы 
 				и скобки.';
@@ -468,7 +466,7 @@ class FormulaParser implements IFormulaParser {
 		// Input string error
 		} elseif ($this->_error_type==2) {
 			if ($this->_lang=='en') {
-			return 'You have not entered the formula.';
+				return 'You have not entered the formula.';
 			} elseif ($this->_lang=='ru') {
 				return 'Вы не ввели формулу.';
 			} elseif ($this->_lang=='es') {
@@ -494,7 +492,7 @@ class FormulaParser implements IFormulaParser {
 			}
 		}
 	}
-			
+	
 	/** 
 	 * Parses and evaluates the entered formula
 	 *
@@ -512,9 +510,9 @@ class FormulaParser implements IFormulaParser {
 			$this->_error_type = 2;
 			//goto finish;
 		}
-
+		
 		if ($this->_correct) {
-					
+			
 			$open_parentheses_count = substr_count($this->_formula,'('); 
 			$close_parentheses_count = substr_count($this->_formula,')');
 			
@@ -526,7 +524,7 @@ class FormulaParser implements IFormulaParser {
 					$this->_error_type = 3;
 					//goto finish;
 				}
-									
+				
 				// Check the syntax is correct when using parentheses
 				if (preg_match('/(\)[\s\t]*[^\)\+\-\*\/\^\s\t])|(\([\s\t]*?\))|([^\(\+\-\*\/\^\s\t][\s\t]*\()/',$this->_formula)) {
 					$this->_correct = 0;
@@ -586,7 +584,6 @@ class FormulaParser implements IFormulaParser {
 							.$temp.substr($processing_formula, $length-$end_cursor_pos+1);
 						}
 					}
-					
 					$this->_formula = $processing_formula;
 				}
 			}
