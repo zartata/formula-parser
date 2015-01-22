@@ -27,7 +27,7 @@ Then invoke the class in your project using the class constructor:
 
 `$language` Setting the language ('en', 'ru' or 'es')
 
-`$precision_rounding` Setting the maximum number of characters after the decimal point in a calculated answer
+`$precision_rounding` Setting the maximum number of digits after the decimal point in a calculated answer
 
 
 The initialized object `$formula` has two public methods:
