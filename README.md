@@ -7,6 +7,7 @@ Supported:
 * Operators +, -, *, /, ^
 * Numbers with decimal point '.'
 * Constants: pi
+* Functions: sqrt, abs, sin, cos, tan
 * Unlimited nested parentheses
 * Build-in validation and multilingual responses
 
@@ -32,7 +33,7 @@ Then invoke the class in your project using the class constructor:
 
 The initialized object `$formula` has two public methods:
 
-`getResult()` Returns an array(0=>value1, 1=>value2), where value1 is the operating status, which can be 'done' or 'error', and value2 is a calculated answer or error message in the set language.
+`getResult()` Returns an array(0=>value1, 1=>value2), where value1 is the operating status which can be 'done' or 'error', and value2 is a calculated answer or error message in the set language.
 
 `getFormula()`  Returns the text of the formula passed to the constructor
 
@@ -55,4 +56,4 @@ More examples can be found on [www.yoursimpleformula.com](http://www.yoursimplef
 
 ###License
 
-This program is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+Formula Parser is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
