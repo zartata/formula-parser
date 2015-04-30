@@ -63,10 +63,10 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Constructor
 	 *
-	 * @param string  $input_string		The formula entered as a string
-	 * @param string  $language		Setting the language
-	 * @param integer $precision_rounding	Setting the maximum number of digits after the decimal point 
-	 *					in a calculated answer
+	 * @param string  $input_string	       The formula entered as a string
+	 * @param string  $language	       Setting the language
+	 * @param integer $precision_rounding  Setting the maximum number of digits after the decimal point 
+	 *				       in a calculated answer
 	 */
 	public function __construct($input_string, $language, $precision_rounding)
 	{
@@ -95,7 +95,7 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Returns the text of the formula passed to the constructor
 	 *
-	 * @return string	The entered formula
+	 * @return string  The entered formula
 	 */
 	public function getFormula()
 	{
@@ -132,7 +132,7 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Calculates first-order operations ^, * and /
 	 *
-	 * @param array	$array	An array containing the parsed subexpression of the formula
+	 * @param array	$array  An array containing the parsed subexpression of the formula
 	 *
 	 * @return array
 	 */
@@ -206,7 +206,7 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Calculates second-order operations + and -
 	 *
-	 * @param array	$array	An array containing the parsed subexpression of the formula
+	 * @param array	$array  An array containing the parsed subexpression of the formula
 	 *
 	 * @return array
 	 */
@@ -241,12 +241,12 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Evaluates functions
 	 *
-	 * @param string  $function	A name of the function: sqrt, abs, sin, cos or tan
-	 * @param string  $str		A particular portion (subexpression) of the formula
-	 * @param integer $strlen	A length of the given subexpression
-	 * @param integer $i		The $i value in the parent loop
+	 * @param string  $function  A name of the function: sqrt, abs, sin, cos or tan
+	 * @param string  $str	     A particular portion (subexpression) of the formula
+	 * @param integer $strlen    A length of the given subexpression
+	 * @param integer $i	     The $i value in the parent loop
 	 */
-	private function evaluateFunction($function,&$str,&$strlen,$i)
+	private function evaluateFunction($function, &$str, &$strlen, $i)
 	{
 		$valid_functions = array('sqrt','abs','sin','cos','tan');
 		if (!in_array($function,$valid_functions)) {
@@ -305,8 +305,8 @@ class FormulaParser implements IFormulaParser {
 	/**
 	 * Parses and evaluates a subexpression of the formula
 	 *
-	 * @param string $str	A particular portion (subexpression) of the formula.
-	 *			It's in parentheses, or the whole formula if there are no parentheses.
+	 * @param string $str  A particular portion (subexpression) of the formula.
+	 *		       It's in parentheses, or the whole formula if there are no parentheses.
 	 * @return float
 	 */
 	private function getAnswer($str)
@@ -462,9 +462,9 @@ class FormulaParser implements IFormulaParser {
 	}
 	
 	/**
-	 * Checks if there is an exponential expression, where 
-	 * the base is a negative number in parentheses, e.g. '(-2) ^ 4'
-	 * If yes - calculates it correctly.
+	 * Checks if there is an exponential expression 
+	 * where the base is a negative number in parentheses, 
+	 * e.g. '(-2) ^ 4', and if yes - calculates it correctly.
 	 *
 	 * @param string  $expression
 	 * @param integer $length
@@ -517,16 +517,16 @@ class FormulaParser implements IFormulaParser {
 	 */
 	private function errorMsg()
 	{
-		// Syntax error
+		// Input error
 		if ($this->error_type==1) {
 			if ($this->lang=='en') {
 				return 'Numbers, operators +-*/^, parentheses, specified constants and functions only.';
 			} elseif ($this->lang=='ru') {
 				return 'Только цифры, операторы +-*/^, скобки, определенные константы и функции.';
 			} elseif ($this->lang=='es') {
-				return 'Sólo cifras, los operadores +-*/^, paréntesis, ciertas constantes y funciones.';
+				return 'Sólo cifras, operadores +-*/^, paréntesis, ciertas constantes y funciones.';
 			}
-		// Input string error
+		// Empty string
 		} elseif ($this->error_type==2) {
 			if ($this->lang=='en') {
 				return 'You have not entered the formula.';
@@ -535,7 +535,7 @@ class FormulaParser implements IFormulaParser {
 			} elseif ($this->lang=='es') {
 				return 'Usted no ha entrado en la fórmula.';
 			}
-		// Mismatched parentheses error
+		// Mismatched parentheses
 		} elseif ($this->error_type==3) {
 			if ($this->lang=='en') {
 				return 'Number of opening and closing parenthesis must be equal.';
@@ -547,11 +547,11 @@ class FormulaParser implements IFormulaParser {
 		// Unexpected error
 		} else {
 			if ($this->lang=='en') {
-				return 'Please check the specified formula for a syntactic correctness.';
+				return 'Syntax error.';
 			} elseif ($this->lang=='ru') {
-				return 'Пожалуйста, проверьте указанную формулу на корректность синтаксиса.';
+				return 'Ошибка синтаксиса.';
 			} elseif ($this->lang=='es') {
-				return 'Por favor, compruebe la fórmula especificada para una corrección sintáctica.';
+				return 'Error de sintaxis.';
 			}
 		}
 	}
@@ -559,9 +559,9 @@ class FormulaParser implements IFormulaParser {
 	/** 
 	 * Parses and evaluates the entered formula
 	 *
-	 * @return array	array(0=>value1, 1=>value2), where value1 is the operating status, 
-	 * 			which can be 'done' or 'error', and value2 is a calculated answer 
-	 * 			or error message in the set language. 
+	 * @return array  array(0=>value1, 1=>value2), where value1 is the operating status 
+	 * 		  which can be 'done' or 'error', and value2 is a calculated answer 
+	 * 		  or error message in the set language.
 	 */
 	public function getResult()
 	{
